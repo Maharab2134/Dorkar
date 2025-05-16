@@ -392,9 +392,10 @@ class _ProfileScreen2State extends State<ProfileScreen2>
                                         await prefObj?.remove('providername');
                                         await prefObj?.remove('provideremail');
                                         await prefObj?.remove('providerphone');
-                                        await prefObj?.remove('providerservice');
+                                        await prefObj
+                                            ?.remove('providerservice');
                                         // Clear IP address and its expiry
-                                        
+
                                         if (mounted) {
                                           Navigator.pushAndRemoveUntil(
                                             context,
