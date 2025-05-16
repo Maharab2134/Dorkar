@@ -1,0 +1,2 @@
+/home/dev/Documents/dorkar/android/app/.cxx/Debug/6453q512/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/dev/Documents/dorkar/android/app/.cxx/Debug/6453q512/armeabi-v7a/CMakeFiles/rebuild_cache.dir
