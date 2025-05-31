@@ -29,10 +29,64 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Future<void> loadDetails() async {
     prefObj = await SharedPreferences.getInstance();
     setState(() {
-      ip = prefObj?.getString('ip') ?? 'No IP';
-      userid = prefObj?.getString('userid') ?? 'No user ID';
+      ip = prefObj?.getString('ip') ?? '';
+      userid = prefObj?.getString('userid') ?? '';
     });
-    print('User ID: $userid'); // Debug print
+    
+    if (ip.isEmpty || userid.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Session expired. Please login again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Navigate to login screen
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/select_user',
+          (route) => false,
+        );
+      }
+      return;
+    }
+    
+    print('User ID: $userid');
+    print('IP Address: $ip');
+  }
+
+  Future<void> logout() async {
+    try {
+      // Clear all user data
+      await prefObj?.remove('userid');
+      await prefObj?.remove('username');
+      await prefObj?.remove('useremail');
+      await prefObj?.remove('userphone');
+      // Don't clear IP address as it's needed for login
+      
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/select_user',
+          (route) => false,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Logged out successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error logging out: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<List<Bookings>> getUserBookings() async {
@@ -99,6 +153,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Bookings'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: logout,
+          ),
+        ],
       ),
       body: FutureBuilder<List<Bookings>>(
         future: getUserBookings(),

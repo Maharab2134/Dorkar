@@ -6,6 +6,8 @@ import 'profile_screen2.dart';
 import 'booking_screen2.dart';
 import 'service_screen2.dart';
 import 'settings_screen2.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DashboardScreen2 extends StatefulWidget {
   const DashboardScreen2({super.key});
@@ -20,6 +22,14 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
   late Animation<Offset> _slideAnimation;
   String providerName = '';
   String providerService = '';
+  String ip = '';
+  String providerId = '';
+  Map<String, int> bookingStats = {
+    'pending': 0,
+    'completed': 0,
+    'cancelled': 0,
+  };
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -55,7 +65,41 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     setState(() {
       providerName = prefs.getString('providername') ?? '';
       providerService = prefs.getString('providerservice') ?? '';
+      ip = prefs.getString('ip') ?? '';
+      providerId = prefs.getString('providerid') ?? '';
     });
+    await fetchBookingStats();
+  }
+
+  Future<void> fetchBookingStats() async {
+    if (ip.isEmpty || providerId.isEmpty) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://$ip/dorkar/providerbookingstats.php?pid=$providerId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Received booking stats: $data');
+        
+        setState(() {
+          bookingStats = {
+            'pending': int.tryParse(data['pending']?.toString() ?? '0') ?? 0,
+            'completed': int.tryParse(data['completed']?.toString() ?? '0') ?? 0,
+            'cancelled': int.tryParse(data['cancelled']?.toString() ?? '0') ?? 0,
+          };
+        });
+        
+        print('Updated booking stats: $bookingStats');
+      }
+    } catch (e) {
+      print('Error fetching booking stats: $e');
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -179,28 +223,33 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  _buildStatCard(
-                                    icon: Icons.calendar_today,
-                                    title: 'Today',
-                                    value: '5',
-                                    color: softBlue,
-                                  ),
-                                  _buildStatCard(
-                                    icon: Icons.pending_actions,
-                                    title: 'Pending',
-                                    value: '3',
-                                    color: Colors.orange,
-                                  ),
-                                  _buildStatCard(
-                                    icon: Icons.check_circle,
-                                    title: 'Completed',
-                                    value: '12',
-                                    color: Colors.green,
-                                  ),
-                                ],
+                              SizedBox(
+                                height: 120,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: [
+                                    _buildStatCard(
+                                      icon: Icons.pending_actions,
+                                      title: 'Pending',
+                                      value: isLoading ? '...' : bookingStats['pending'].toString(),
+                                      color: Colors.orange,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    _buildStatCard(
+                                      icon: Icons.check_circle,
+                                      title: 'Completed',
+                                      value: isLoading ? '...' : bookingStats['completed'].toString(),
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    _buildStatCard(
+                                      icon: Icons.cancel,
+                                      title: 'Cancelled',
+                                      value: isLoading ? '...' : bookingStats['cancelled'].toString(),
+                                      color: Colors.red,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
