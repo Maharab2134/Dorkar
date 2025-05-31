@@ -121,9 +121,14 @@ class _BookingScreen2State extends State<BookingScreen2>
       isLoading = true;
     });
 
-    String url = status == 'cancelled' 
-        ? 'http://$ip/dorkar/providerrejected.php'
-        : 'http://$ip/dorkar/provideraccepted.php';
+    String url;
+    if (status == 'cancelled') {
+      url = 'http://$ip/dorkar/providerrejected.php';
+    } else if (status == 'completed') {
+      url = 'http://$ip/dorkar/providercompleted.php';
+    } else {
+      url = 'http://$ip/dorkar/provideraccepted.php';
+    }
     print('Updating booking $bookingId to status: $status');
 
     try {
@@ -131,7 +136,6 @@ class _BookingScreen2State extends State<BookingScreen2>
         Uri.parse(url),
         body: {
           'id': bookingId,
-          'status': status,
         },
       );
 
@@ -141,20 +145,24 @@ class _BookingScreen2State extends State<BookingScreen2>
         print('Status update successful!');
         fetchBookings();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Booking status updated'),
+          SnackBar(
+            content: Text(status == 'cancelled'
+                ? 'Booking cancelled'
+                : status == 'completed'
+                    ? 'Booking marked as completed'
+                    : 'Booking confirmed'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
-        print('Status update failed: ${jsonString['message']}');
+        print('Status update failed: ${jsonString['error']}');
         setState(() {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                'Failed to update booking status: ${jsonString['message']}'),
+            content:
+                Text('Failed to update booking status: ${jsonString['error']}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -251,10 +259,10 @@ class _BookingScreen2State extends State<BookingScreen2>
                   child: Row(
                     children: [
                       _buildFilterChip('All'),
-                      _buildFilterChip('Pending'),
-                      _buildFilterChip('Confirmed'),
-                      _buildFilterChip('Completed'),
-                      _buildFilterChip('Cancelled'),
+                      _buildFilterChip('pending'),
+                      _buildFilterChip('confirmed'),
+                      _buildFilterChip('completed'),
+                      _buildFilterChip('cancelled'),
                     ],
                   ),
                 ),
@@ -393,6 +401,64 @@ class _BookingScreen2State extends State<BookingScreen2>
                                                       ),
                                                     ),
                                                     child: const Text('Accept'),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: ElevatedButton(
+                                                    onPressed: () {
+                                                      print(
+                                                          'Cancel button clicked for booking ${booking['id']}');
+                                                      updateBookingStatus(
+                                                        booking['id']
+                                                            .toString(),
+                                                        'cancelled',
+                                                      );
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          else if (booking['status'] ==
+                                              'confirmed')
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: ElevatedButton(
+                                                    onPressed: () {
+                                                      print(
+                                                          'Complete button clicked for booking ${booking['id']}');
+                                                      updateBookingStatus(
+                                                        booking['id']
+                                                            .toString(),
+                                                        'completed',
+                                                      );
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                    child:
+                                                        const Text('Complete'),
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),
