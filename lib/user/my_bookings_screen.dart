@@ -16,7 +16,8 @@ class MyBookingsScreen extends StatefulWidget {
   State<MyBookingsScreen> createState() => _MyBookingsScreenState();
 }
 
-class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerProviderStateMixin {
+class _MyBookingsScreenState extends State<MyBookingsScreen>
+    with SingleTickerProviderStateMixin {
   SharedPreferences? prefObj;
   String ip = '';
   String userid = '';
@@ -65,7 +66,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
       ip = prefObj?.getString('ip') ?? '';
       userid = prefObj?.getString('userid') ?? '';
     });
-    
+
     if (ip.isEmpty || userid.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +84,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
       }
       return;
     }
-    
+
     print('User ID: $userid');
     print('IP Address: $ip');
   }
@@ -96,7 +97,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
       await prefObj?.remove('useremail');
       await prefObj?.remove('userphone');
       // Don't clear IP address as it's needed for login
-      
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -301,7 +302,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'Booking #${myBookings.id}',
@@ -317,17 +319,22 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                                             vertical: 6,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: getStatusColor(myBookings.status).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(20),
+                                            color: getStatusColor(
+                                                    myBookings.status)
+                                                .withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                             border: Border.all(
-                                              color: getStatusColor(myBookings.status),
+                                              color: getStatusColor(
+                                                  myBookings.status),
                                               width: 1,
                                             ),
                                           ),
                                           child: Text(
                                             myBookings.status.toUpperCase(),
                                             style: TextStyle(
-                                              color: getStatusColor(myBookings.status),
+                                              color: getStatusColor(
+                                                  myBookings.status),
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -363,7 +370,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => PaymentScreen(
+                                                builder: (context) =>
+                                                    PaymentScreen(
                                                   bookingID: myBookings.id,
                                                 ),
                                               ),
@@ -371,9 +379,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: vanilla,
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 12),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                           ),
                                           child: const Text(
@@ -394,19 +404,24 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                    builder: (context) => FeedbackScreen(
+                                                    builder: (context) =>
+                                                        FeedbackScreen(
                                                       bookingID: myBookings.id,
                                                       userID: myBookings.userId,
-                                                      providerID: myBookings.providerId,
+                                                      providerID:
+                                                          myBookings.providerId,
                                                     ),
                                                   ),
                                                 );
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: vanilla,
-                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 12),
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
                                               ),
                                               child: const Text(
