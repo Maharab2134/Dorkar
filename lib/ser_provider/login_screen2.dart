@@ -7,6 +7,7 @@ import '../constants/animations.dart';
 import '../widgets/custom_input_field.dart';
 import 'sign_up_screen2.dart';
 import 'dashboard_screen2.dart';
+import '../utils/ip_manager.dart';
 
 class LoginScreen2 extends StatefulWidget {
   const LoginScreen2({super.key});
@@ -24,9 +25,9 @@ class _LoginScreen2State extends State<LoginScreen2>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  SharedPreferences? prefObj;
   String ip = '';
   bool isLoading = false;
+  String providerID = '';
 
   @override
   void initState() {
@@ -58,9 +59,10 @@ class _LoginScreen2State extends State<LoginScreen2>
   }
 
   Future<void> loadPref() async {
-    prefObj = await SharedPreferences.getInstance();
+    ip = await IPManager.getIP();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      ip = prefObj?.getString('ip') ?? 'No IP Address';
+      providerID = prefs.getString('providerid') ?? 'No provider ID';
     });
   }
 

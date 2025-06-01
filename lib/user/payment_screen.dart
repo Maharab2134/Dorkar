@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_application_7/user/feedback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../utils/ip_manager.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key, required this.bookingID});
@@ -14,8 +15,6 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-
-
   @override
   void initState() {
     super.initState();
@@ -24,8 +23,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final agreedAmount = TextEditingController();
+  bool isProcessing = false;
 
-  SharedPreferences? prefObj;
   String ip = '';
   String userID = '';
   
@@ -33,20 +32,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String? selectedPaymentMethod;
   final List<String> paymentMethods = ['Credit Card', 'Debit Card', 'PayPal', 'Cash'];
 
-  Future<void> loadPref()async
-  {
-    prefObj = await SharedPreferences.getInstance();
+  Future<void> loadPref() async {
+    ip = await IPManager.getIP();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      ip = prefObj?.getString('ip') ?? 'No IP';
-      userID = prefObj?.getString('userid') ?? 'No user ID';
+      userID = prefs.getString('userid') ?? 'No user ID';
     });
   }
 
-  Future<void> paymentDetails(String bookingID)async
-  {
-    String url = 'http://$ip/dorkar/payment.php';
+  Future<void> paymentDetails(String bookingID) async {
+    setState(() {
+      isProcessing = true;
+    });
 
     try {
+      String url = 'http://$ip/dorkar/payment.php';
+
       var response = await http.post(
         Uri.parse(url),
         body: {
@@ -61,28 +62,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
       var jsonString = jsonBody['message'];
 
       if (jsonString == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment Details Uploaded')),
-        );
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => FeedbackScreen(bookingID: bookingID,userID: userID,)),
-        // );
-        Navigator.pop(context);
-        Navigator.pop(context);
-
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Payment Details Uploaded')),
+          );
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment Details Failed')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Payment Details Failed')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isProcessing = false;
+        });
+      }
     }
-
-
   }
 
   @override
@@ -111,7 +117,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 controller: agreedAmount,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null && value!.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter the agreed amount';
                   }
                   return null;
@@ -143,12 +149,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      paymentDetails(widget.bookingID);
-                    }
-                  },
-                  child: const Text('Submit Payment'),
+                  onPressed: isProcessing
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            paymentDetails(widget.bookingID);
+                          }
+                        },
+                  child: isProcessing
+                      ? const CircularProgressIndicator()
+                      : const Text('Submit Payment'),
                 ),
               ),
             ],
@@ -156,5 +166,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    agreedAmount.dispose();
+    super.dispose();
   }
 }

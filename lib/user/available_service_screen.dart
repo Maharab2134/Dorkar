@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../utils/ip_manager.dart';
 
 class AvailableServiceScreen extends StatefulWidget {
   const AvailableServiceScreen({super.key});
@@ -12,41 +13,30 @@ class AvailableServiceScreen extends StatefulWidget {
 }
 
 class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
-  SharedPreferences? _prefObj;
-  String _ip = '';
-  String _userId = '';
-  bool isLoading = true;
-  List<Map<String, dynamic>> _services = [];
-
   @override
   void initState() {
     super.initState();
-    _loadPreferencesAndFetchServices();
+    loadPref();
   }
 
-  Future<void> _loadPreferencesAndFetchServices() async {
-    try {
-      _prefObj = await SharedPreferences.getInstance();
-      _ip = _prefObj?.getString('ip') ?? '';
-      _userId = _prefObj?.getString('userid') ?? '';
+  String ip = '';
+  String userID = '';
+  bool _isLoading = false;
+  List<Map<String, dynamic>> _services = [];
 
-      if (_ip.isEmpty || _userId.isEmpty) {
-        showMessage('Missing configuration data', isError: true);
-        setState(() => isLoading = false);
-        return;
-      }
-
-      await fetchServices();
-    } catch (e) {
-      showMessage('Error loading preferences: $e', isError: true);
-    }
+  Future<void> loadPref() async {
+    ip = await IPManager.getIP();
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userID = prefs.getString('userid') ?? 'No user ID';
+    });
   }
 
   Future<void> fetchServices() async {
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     try {
-      final response = await http.get(Uri.parse('http://$_ip/dorkar/getservices.php'));
+      final response = await http.get(Uri.parse('http://$ip/dorkar/getservices.php'));
       final jsonString = jsonDecode(response.body);
 
       if (jsonString['message'] == 'success') {
@@ -59,14 +49,14 @@ class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
     } catch (e) {
       showMessage('Error fetching services: $e', isError: true);
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
   Future<bool> checkExistingBookings() async {
     try {
       final response = await http.get(
-        Uri.parse('http://$_ip/dorkar/usermybookings.php?uid=$_userId'),
+        Uri.parse('http://$ip/dorkar/usermybookings.php?uid=$userID'),
       );
 
       if (response.statusCode == 200) {
@@ -132,7 +122,7 @@ class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
   }
 
   Future<void> bookService(Map<String, dynamic> service) async {
-    if (isLoading) {
+    if (_isLoading) {
       showMessage('Please wait while we process your request...', isError: true);
       return;
     }
@@ -189,14 +179,14 @@ class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
     final bookingDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     final bookingTime = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:00';
 
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     try {
       final response = await http.post(
-        Uri.parse('http://$_ip/dorkar/bookservice.php'),
+        Uri.parse('http://$ip/dorkar/bookservice.php'),
         body: {
           'service_id': service['id'].toString(),
-          'user_id': _userId,
+          'user_id': userID,
           'booking_date': bookingDate,
           'booking_time': bookingTime,
         },
@@ -213,7 +203,7 @@ class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
     } catch (e) {
       showMessage('Booking error: $e', isError: true);
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -234,7 +224,7 @@ class _AvailableServiceScreenState extends State<AvailableServiceScreen> {
         title: const Text('Available Services'),
         backgroundColor: Colors.green,
       ),
-      body: isLoading
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _services.isEmpty
               ? const Center(child: Text('No services available'))

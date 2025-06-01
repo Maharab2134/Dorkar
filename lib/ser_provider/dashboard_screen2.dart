@@ -8,6 +8,7 @@ import 'service_screen2.dart';
 import 'settings_screen2.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../utils/ip_manager.dart';
 
 class DashboardScreen2 extends StatefulWidget {
   const DashboardScreen2({super.key});
@@ -23,13 +24,13 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
   String providerName = '';
   String providerService = '';
   String ip = '';
-  String providerId = '';
+  String providerID = '';
   Map<String, int> bookingStats = {
     'pending': 0,
     'completed': 0,
     'cancelled': 0,
   };
-  bool isLoading = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -57,28 +58,28 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     );
 
     _controller.forward();
-    loadProviderData();
+    loadPref();
   }
 
-  Future<void> loadProviderData() async {
+  Future<void> loadPref() async {
+    ip = await IPManager.getIP();
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       providerName = prefs.getString('providername') ?? '';
       providerService = prefs.getString('providerservice') ?? '';
-      ip = prefs.getString('ip') ?? '';
-      providerId = prefs.getString('providerid') ?? '';
+      providerID = prefs.getString('providerid') ?? 'No provider ID';
     });
     await fetchBookingStats();
   }
 
   Future<void> fetchBookingStats() async {
-    if (ip.isEmpty || providerId.isEmpty) return;
+    if (ip.isEmpty || providerID.isEmpty) return;
 
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     try {
       final response = await http.get(
-        Uri.parse('http://$ip/dorkar/providerbookingstats.php?pid=$providerId'),
+        Uri.parse('http://$ip/dorkar/providerbookingstats.php?pid=$providerID'),
       );
 
       if (response.statusCode == 200) {
@@ -98,7 +99,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     } catch (e) {
       print('Error fetching booking stats: $e');
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -231,21 +232,21 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                                     _buildStatCard(
                                       icon: Icons.pending_actions,
                                       title: 'Pending',
-                                      value: isLoading ? '...' : bookingStats['pending'].toString(),
+                                      value: _isLoading ? '...' : bookingStats['pending'].toString(),
                                       color: Colors.orange,
                                     ),
                                     const SizedBox(width: 16),
                                     _buildStatCard(
                                       icon: Icons.check_circle,
                                       title: 'Completed',
-                                      value: isLoading ? '...' : bookingStats['completed'].toString(),
+                                      value: _isLoading ? '...' : bookingStats['completed'].toString(),
                                       color: Colors.green,
                                     ),
                                     const SizedBox(width: 16),
                                     _buildStatCard(
                                       icon: Icons.cancel,
                                       title: 'Cancelled',
-                                      value: isLoading ? '...' : bookingStats['cancelled'].toString(),
+                                      value: _isLoading ? '...' : bookingStats['cancelled'].toString(),
                                       color: Colors.red,
                                     ),
                                   ],

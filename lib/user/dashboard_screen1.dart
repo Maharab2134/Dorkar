@@ -5,6 +5,9 @@ import 'package:dorkar/user/available_service_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dorkar/widgets/dashboardcard.dart';
 import 'profile_screen1.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../utils/ip_manager.dart';
 
 class DashboardScreen1 extends StatefulWidget {
   const DashboardScreen1({super.key});
@@ -14,18 +17,18 @@ class DashboardScreen1 extends StatefulWidget {
 }
 
 class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerProviderStateMixin {
-  SharedPreferences? prefObj;
   String ip = '';
   String username = '';
   String id = '';
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadPref();
+    loadPref();
     _setupAnimations();
   }
 
@@ -55,12 +58,12 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
     _animationController.forward();
   }
 
-  Future<void> _loadPref() async {
-    prefObj = await SharedPreferences.getInstance();
+  Future<void> loadPref() async {
+    ip = await IPManager.getIP();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      ip = prefObj?.getString('ip') ?? 'No IP Address';
-      id = prefObj?.getString('userid') ?? 'No user ID';
-      username = prefObj?.getString('username') ?? 'No user name';
+      id = prefs.getString('userid') ?? 'No user ID';
+      username = prefs.getString('username') ?? 'No user name';
     });
   }
 
