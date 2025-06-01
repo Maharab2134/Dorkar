@@ -18,49 +18,87 @@ class ServiceAvailableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
       ),
-      elevation: 2,
-      color: vanillaShade, // Using vanillaShade as card background
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Text(
-          leading,
-          style: TextStyle(
-            color: theme.iconTheme.color, // softBlue from the theme
-            fontWeight: FontWeight.bold,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: darkBlue,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: vanilla.withOpacity(0.2),
+            width: 1,
           ),
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: theme.textTheme.bodyLarge?.color, // Use bodyLarge for the title
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: theme.textTheme.bodySmall?.color, // Use bodySmall for subtitle
-          ),
-        ),
-        trailing: ElevatedButton(
-          onPressed: onPressed,
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(theme.colorScheme.secondary), // accentOrange
-            foregroundColor: WidgetStateProperty.all(Colors.white),
-            shape: WidgetStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: softBlue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    leading,
+                    style: const TextStyle(
+                      color: softBlue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: vanilla,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: vanilla.withOpacity(0.8),
+                fontSize: 14,
               ),
             ),
-            padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-          ),
-          child: const Text('Book'),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: vanilla,
+                  foregroundColor: darkBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Book Now',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

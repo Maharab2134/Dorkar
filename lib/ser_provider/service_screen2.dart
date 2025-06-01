@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/my_colors.dart';
 import '../constants/animations.dart';
+import '../select_user.dart';
 
 class ServiceScreen2 extends StatefulWidget {
   const ServiceScreen2({super.key});
@@ -345,14 +346,20 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                 padding: const EdgeInsets.all(24.0),
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        color: vanilla,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: vanilla.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: vanilla,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    const Spacer(),
                     const Text(
                       'My Services',
                       style: TextStyle(
@@ -362,12 +369,60 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.refresh,
-                        color: vanilla,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: vanilla.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                      onPressed: fetchServices,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          color: vanilla,
+                        ),
+                        onPressed: fetchServices,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: vanilla.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          color: vanilla,
+                        ),
+                        onPressed: () async {
+                          try {
+                            await prefObj?.clear();
+                            if (mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SelectUserScreen(),
+                                ),
+                                (route) => false,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Logged out successfully'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error logging out: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -383,12 +438,23 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                         ? Center(
                             child: FadeTransition(
                               opacity: _fadeAnimation,
-                              child: const Text(
-                                'No services added yet',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: vanilla,
-                                ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.work_off_rounded,
+                                    size: 64,
+                                    color: vanilla.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No services added yet',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: vanilla.withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           )
@@ -403,21 +469,18 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                                   opacity: _fadeAnimation,
                                   child: Card(
                                     margin: const EdgeInsets.only(bottom: 16),
-                                    elevation: 8,
+                                    elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Container(
-                                      padding: const EdgeInsets.all(16),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
+                                        color: darkBlue,
                                         borderRadius: BorderRadius.circular(20),
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            vanilla,
-                                            vanilla.withOpacity(0.9),
-                                          ],
+                                        border: Border.all(
+                                          color: vanilla.withOpacity(0.1),
+                                          width: 1,
                                         ),
                                       ),
                                       child: Column(
@@ -432,49 +495,61 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                                                   style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color: darkBlue,
+                                                    color: vanilla,
                                                   ),
                                                 ),
                                               ),
-                                              IconButton(
-                                                icon: const Icon(
-                                                  Icons.delete_outline,
-                                                  color: Colors.red,
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red.withOpacity(0.1),
+                                                  shape: BoxShape.circle,
                                                 ),
-                                                onPressed: () => showDialog(
-                                                  context: context,
-                                                  builder: (context) => AlertDialog(
-                                                    title: const Text('Delete Service'),
-                                                    content: const Text(
-                                                      'Are you sure you want to delete this service?',
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: const Text('Cancel'),
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.delete_outline_rounded,
+                                                    color: Colors.red,
+                                                  ),
+                                                  onPressed: () => showDialog(
+                                                    context: context,
+                                                    builder: (context) => AlertDialog(
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20),
                                                       ),
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                          deleteService(service['id'].toString());
-                                                        },
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: Colors.red,
+                                                      title: const Text('Delete Service'),
+                                                      content: const Text(
+                                                        'Are you sure you want to delete this service?',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () => Navigator.pop(context),
+                                                          child: const Text('Cancel'),
                                                         ),
-                                                        child: const Text('Delete'),
-                                                      ),
-                                                    ],
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(context);
+                                                            deleteService(service['id'].toString());
+                                                          },
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: Colors.red,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(12),
+                                                            ),
+                                                          ),
+                                                          child: const Text('Delete'),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(height: 8),
+                                          const SizedBox(height: 12),
                                           Text(
                                             service['description'],
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 14,
-                                              color: darkBlue,
+                                              color: vanilla.withOpacity(0.8),
                                             ),
                                           ),
                                           const SizedBox(height: 16),
@@ -482,11 +557,11 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               _buildInfoChip(
-                                                Icons.attach_money,
-                                                '\$${service['price']}',
+                                                Icons.attach_money_rounded,
+                                                '${service['price']}',
                                               ),
                                               _buildInfoChip(
-                                                Icons.access_time,
+                                                Icons.access_time_rounded,
                                                 '${service['duration']} min',
                                               ),
                                             ],
@@ -506,32 +581,41 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddServiceDialog,
-        backgroundColor: softBlue,
-        child: const Icon(Icons.add),
+        backgroundColor: vanilla,
+        elevation: 0,
+        child: const Icon(
+          Icons.add_rounded,
+          color: darkBlue,
+          size: 28,
+        ),
       ),
     );
   }
 
   Widget _buildInfoChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: softBlue.withOpacity(0.1),
+        color: vanilla.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: vanilla.withOpacity(0.1),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
-            size: 16,
-            color: softBlue,
+            size: 18,
+            color: vanilla,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Text(
             text,
-            style: TextStyle(
-              color: softBlue,
+            style: const TextStyle(
+              color: vanilla,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -539,4 +623,4 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
       ),
     );
   }
-} 
+}

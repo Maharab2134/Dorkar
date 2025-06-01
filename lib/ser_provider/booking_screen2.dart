@@ -225,11 +225,7 @@ class _BookingScreen2State extends State<BookingScreen2>
                         color: vanilla,
                       ),
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/select_user',
-                          (route) => false,
-                        );
+                        Navigator.pop(context);
                       },
                     ),
                     const SizedBox(width: 8),
@@ -563,4 +559,4 @@ class _BookingScreen2State extends State<BookingScreen2>
         return Colors.grey;
     }
   }
-}
+} 

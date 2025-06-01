@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
+import 'select_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants/my_colors.dart';
 import 'constants/animations.dart';
@@ -11,7 +11,8 @@ class IpAddressScreen extends StatefulWidget {
   State<IpAddressScreen> createState() => _IpAddressScreenState();
 }
 
-class _IpAddressScreenState extends State<IpAddressScreen> with SingleTickerProviderStateMixin {
+class _IpAddressScreenState extends State<IpAddressScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _ipController = TextEditingController();
   String _ipAddress = '';
@@ -202,7 +203,7 @@ class _IpAddressScreenState extends State<IpAddressScreen> with SingleTickerProv
                                         Navigator.pushReplacement(
                                           context,
                                           FadePageRoute(
-                                            page: const SplashScreen(),
+                                            page: const SelectUserScreen(),
                                           ),
                                         );
                                       }
