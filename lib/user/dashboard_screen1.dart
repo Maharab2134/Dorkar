@@ -5,11 +5,11 @@ import 'package:dorkar/user/available_service_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dorkar/widgets/dashboardcard.dart';
 import 'profile_screen1.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../utils/ip_manager.dart';
 import '../constants/my_colors.dart';
 import '../widgets/gradient_background.dart';
+import '../utils/logger.dart';
+import '../utils/context_utils.dart';
 
 class DashboardScreen1 extends StatefulWidget {
   const DashboardScreen1({super.key});
@@ -22,14 +22,13 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
   String ip = '';
   String username = '';
   String id = '';
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  bool _isLoading = false;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
   final PageController _pageController = PageController(viewportFraction: 0.9);
   int _currentPage = 0;
 
-  final List<Map<String, dynamic>> _features = [
+  final List<Map<String, dynamic>> _features = const [
     {
       'title': 'Quick Booking',
       'description': 'Book services with just a few taps',
@@ -86,20 +85,21 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
   Future<void> loadPref() async {
     ip = await IPManager.getIP();
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       id = prefs.getString('userid') ?? 'No user ID';
       username = prefs.getString('username') ?? 'No user name';
     });
   }
 
-  void logOut(BuildContext context) async {
+  void logOut(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const SelectUserScreen()),
       (route) => false,
     );
-    print('$username(general user) log out');
-    print('-----------------------------------------------');
+    Logger.info('$username(general user) log out');
+    Logger.info('-----------------------------------------------');
   }
 
   @override
@@ -152,7 +152,7 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: vanilla.withOpacity(0.2),
+                                  color: vanilla.withAlpha(51),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
@@ -211,8 +211,8 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        feature['color'].withOpacity(0.8),
-                                        feature['color'],
+                                        (feature['color'] as Color).withAlpha(204),
+                                        feature['color'] as Color,
                                       ],
                                     ),
                                   ),
@@ -222,13 +222,13 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Icon(
-                                          feature['icon'],
+                                          feature['icon'] as IconData,
                                           size: 40,
                                           color: vanilla,
                                         ),
                                         const Spacer(),
                                         Text(
-                                          feature['title'],
+                                          feature['title'] as String,
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -237,10 +237,10 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          feature['description'],
+                                          feature['description'] as String,
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color: vanilla.withOpacity(0.8),
+                                            color: vanilla.withAlpha(204),
                                           ),
                                         ),
                                       ],
@@ -266,7 +266,7 @@ class _DashboardScreen1State extends State<DashboardScreen1> with SingleTickerPr
                                 shape: BoxShape.circle,
                                 color: _currentPage == index
                                     ? vanilla
-                                    : vanilla.withOpacity(0.3),
+                                    : vanilla.withAlpha(77),
                               ),
                             ),
                           ),

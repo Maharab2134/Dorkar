@@ -352,9 +352,9 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(
+                      icon: const Icon(
                           Icons.arrow_back_rounded,
-                          color: vanilla,
+                        color: vanilla,
                         ),
                         onPressed: () => Navigator.pop(context),
                       ),
@@ -389,10 +389,10 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(
+                      icon: const Icon(
                           Icons.logout_rounded,
-                          color: vanilla,
-                        ),
+                        color: vanilla,
+                      ),
                         onPressed: () async {
                           try {
                             await prefObj?.clear();
@@ -448,12 +448,12 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No services added yet',
-                                    style: TextStyle(
+                                'No services added yet',
+                                style: TextStyle(
                                       fontSize: 18,
                                       color: vanilla.withOpacity(0.8),
                                     ),
-                                  ),
+                                ),
                                 ],
                               ),
                             ),
@@ -505,39 +505,39 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: IconButton(
-                                                  icon: const Icon(
+                                                icon: const Icon(
                                                     Icons.delete_outline_rounded,
-                                                    color: Colors.red,
-                                                  ),
-                                                  onPressed: () => showDialog(
-                                                    context: context,
-                                                    builder: (context) => AlertDialog(
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () => showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
                                                       shape: RoundedRectangleBorder(
                                                         borderRadius: BorderRadius.circular(20),
                                                       ),
-                                                      title: const Text('Delete Service'),
-                                                      content: const Text(
-                                                        'Are you sure you want to delete this service?',
+                                                    title: const Text('Delete Service'),
+                                                    content: const Text(
+                                                      'Are you sure you want to delete this service?',
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancel'),
                                                       ),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () => Navigator.pop(context),
-                                                          child: const Text('Cancel'),
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(context);
-                                                            deleteService(service['id'].toString());
-                                                          },
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: Colors.red,
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                          deleteService(service['id'].toString());
+                                                        },
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor: Colors.red,
                                                             shape: RoundedRectangleBorder(
                                                               borderRadius: BorderRadius.circular(12),
                                                             ),
-                                                          ),
-                                                          child: const Text('Delete'),
                                                         ),
-                                                      ],
+                                                        child: const Text('Delete'),
+                                                      ),
+                                                    ],
                                                     ),
                                                   ),
                                                 ),
@@ -623,4 +623,4 @@ class _ServiceScreen2State extends State<ServiceScreen2> with SingleTickerProvid
       ),
     );
   }
-}
+} 
