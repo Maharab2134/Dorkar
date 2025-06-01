@@ -8,6 +8,8 @@ import 'service_screen2.dart';
 import 'settings_screen2.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../utils/ip_manager.dart';
+import '../widgets/gradient_background.dart';
 
 class DashboardScreen2 extends StatefulWidget {
   const DashboardScreen2({super.key});
@@ -23,13 +25,13 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
   String providerName = '';
   String providerService = '';
   String ip = '';
-  String providerId = '';
+  String providerID = '';
   Map<String, int> bookingStats = {
     'pending': 0,
     'completed': 0,
     'cancelled': 0,
   };
-  bool isLoading = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -57,28 +59,28 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     );
 
     _controller.forward();
-    loadProviderData();
+    loadPref();
   }
 
-  Future<void> loadProviderData() async {
+  Future<void> loadPref() async {
+    ip = await IPManager.getIP();
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       providerName = prefs.getString('providername') ?? '';
       providerService = prefs.getString('providerservice') ?? '';
-      ip = prefs.getString('ip') ?? '';
-      providerId = prefs.getString('providerid') ?? '';
+      providerID = prefs.getString('providerid') ?? 'No provider ID';
     });
     await fetchBookingStats();
   }
 
   Future<void> fetchBookingStats() async {
-    if (ip.isEmpty || providerId.isEmpty) return;
+    if (ip.isEmpty || providerID.isEmpty) return;
 
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     try {
       final response = await http.get(
-        Uri.parse('http://$ip/dorkar/providerbookingstats.php?pid=$providerId'),
+        Uri.parse('http://$ip/dorkar/providerbookingstats.php?pid=$providerID'),
       );
 
       if (response.statusCode == 200) {
@@ -98,7 +100,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     } catch (e) {
       print('Error fetching booking stats: $e');
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
@@ -111,17 +113,8 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              softBlue,
-              darkBlue,
-            ],
-          ),
-        ),
+      body: GradientBackground(
+        isAppBar: true,
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -134,34 +127,53 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(
-                              'Welcome back,',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: vanilla.withOpacity(0.8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: vanilla.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.work_outline_rounded,
+                                color: vanilla,
+                                size: 28,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              providerName,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: vanilla,
-                              ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome back,',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: vanilla.withOpacity(0.8),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  providerName,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: vanilla,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: vanilla,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: vanilla.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
                           child: IconButton(
                             icon: const Icon(
-                              Icons.person_outline,
-                              color: softBlue,
+                              Icons.person_outline_rounded,
+                              color: vanilla,
                             ),
                             onPressed: () {
                               Navigator.push(
@@ -179,94 +191,137 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                   const SizedBox(height: 32),
                   FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Text(
-                      'Service: $providerService',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: vanilla,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: vanilla.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.miscellaneous_services_rounded,
+                            color: vanilla.withOpacity(0.8),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            providerService,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: vanilla.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                   SlideTransition(
                     position: _slideAnimation,
                     child: FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: vanilla.withOpacity(0.2),
+                            width: 1,
+                          ),
                         ),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                vanilla,
-                                vanilla.withOpacity(0.9),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: vanilla.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.analytics_rounded,
+                                    color: vanilla,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Quick Stats',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: vanilla,
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Quick Stats',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: darkBlue,
-                                ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              height: 140,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  _buildStatCard(
+                                    icon: Icons.pending_actions_rounded,
+                                    title: 'Pending',
+                                    value: _isLoading ? '...' : bookingStats['pending'].toString(),
+                                    color: Colors.orange,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  _buildStatCard(
+                                    icon: Icons.check_circle_rounded,
+                                    title: 'Completed',
+                                    value: _isLoading ? '...' : bookingStats['completed'].toString(),
+                                    color: Colors.green,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  _buildStatCard(
+                                    icon: Icons.cancel_rounded,
+                                    title: 'Cancelled',
+                                    value: _isLoading ? '...' : bookingStats['cancelled'].toString(),
+                                    color: Colors.red,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 24),
-                              SizedBox(
-                                height: 120,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: [
-                                    _buildStatCard(
-                                      icon: Icons.pending_actions,
-                                      title: 'Pending',
-                                      value: isLoading ? '...' : bookingStats['pending'].toString(),
-                                      color: Colors.orange,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    _buildStatCard(
-                                      icon: Icons.check_circle,
-                                      title: 'Completed',
-                                      value: isLoading ? '...' : bookingStats['completed'].toString(),
-                                      color: Colors.green,
-                                    ),
-                                    const SizedBox(width: 16),
-                                    _buildStatCard(
-                                      icon: Icons.cancel,
-                                      title: 'Cancelled',
-                                      value: isLoading ? '...' : bookingStats['cancelled'].toString(),
-                                      color: Colors.red,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                   FadeTransition(
                     opacity: _fadeAnimation,
-                    child: const Text(
-                      'Quick Actions',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: vanilla,
-                      ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: vanilla.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.dashboard_rounded,
+                            color: vanilla,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Quick Actions',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: vanilla,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -282,7 +337,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                         crossAxisSpacing: 16,
                         children: [
                           _buildActionCard(
-                            icon: Icons.calendar_month,
+                            icon: Icons.calendar_month_rounded,
                             title: 'Bookings',
                             onTap: () {
                               Navigator.push(
@@ -294,7 +349,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                             },
                           ),
                           _buildActionCard(
-                            icon: Icons.work_outline,
+                            icon: Icons.work_outline_rounded,
                             title: 'Services',
                             onTap: () {
                               Navigator.push(
@@ -306,7 +361,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
                             },
                           ),
                           _buildActionCard(
-                            icon: Icons.person_outline,
+                            icon: Icons.person_outline_rounded,
                             title: 'Profile',
                             onTap: () {
                               Navigator.push(
@@ -349,18 +404,31 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
     required Color color,
   }) {
     return Container(
+      width: 140,
+      height: 140,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 20,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -375,7 +443,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
           Text(
             title,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: color.withOpacity(0.8),
             ),
           ),
@@ -394,23 +462,27 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: vanilla,
+          color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: darkBlue.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(
+            color: vanilla.withOpacity(0.2),
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: softBlue,
-              size: 32,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: vanilla.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: vanilla,
+                size: 28,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -418,7 +490,7 @@ class _DashboardScreen2State extends State<DashboardScreen2> with SingleTickerPr
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: darkBlue,
+                color: vanilla,
               ),
             ),
           ],

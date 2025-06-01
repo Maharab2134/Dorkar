@@ -7,6 +7,7 @@ import 'sign_up_screen1.dart';
 import '../constants/my_colors.dart';
 import '../constants/animations.dart';
 import '../widgets/custom_input_field.dart';
+import '../utils/ip_manager.dart';
 
 class LoginScreen1 extends StatefulWidget {
   const LoginScreen1({super.key});
@@ -24,8 +25,8 @@ class _LoginScreen1State extends State<LoginScreen1>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  SharedPreferences? prefObj;
   String ip = '';
+  String userID = '';
   bool isLoading = false;
 
   @override
@@ -58,9 +59,10 @@ class _LoginScreen1State extends State<LoginScreen1>
   }
 
   Future<void> loadPref() async {
-    prefObj = await SharedPreferences.getInstance();
+    ip = await IPManager.getIP();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      ip = prefObj?.getString('ip') ?? 'No IP Address';
+      userID = prefs.getString('userid') ?? 'No user ID';
     });
   }
 

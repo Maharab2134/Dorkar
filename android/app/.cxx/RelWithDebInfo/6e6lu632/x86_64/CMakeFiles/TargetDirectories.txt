@@ -1,0 +1,2 @@
+/home/dev/Documents/dorkar/android/app/.cxx/RelWithDebInfo/6e6lu632/x86_64/CMakeFiles/edit_cache.dir
+/home/dev/Documents/dorkar/android/app/.cxx/RelWithDebInfo/6e6lu632/x86_64/CMakeFiles/rebuild_cache.dir
