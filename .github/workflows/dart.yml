@@ -16,7 +16,7 @@ jobs:
       # ✅ Set up Flutter SDK (not just Dart)
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'  # or your desired Flutter version
+          flutter-version: '3.29.3'  # or your desired Flutter version
 
       - name: Install dependencies
         run: flutter pub get
