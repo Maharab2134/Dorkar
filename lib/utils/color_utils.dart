@@ -18,4 +18,12 @@ class ColorUtils {
   static Color getBackgroundColor(Color color, double opacity) {
     return color.withAlphaValue(opacity);
   }
+
+  static Color getTextColor(Color color, double opacity) {
+    return color.withAlphaValue(opacity);
+  }
+
+  static Color getBorderColor(Color color, double opacity) {
+    return color.withAlphaValue(opacity);
+  }
 } 
