@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/my_colors.dart';
+import '../utils/color_utils.dart';
 
 class GradientBackground extends StatelessWidget {
   final Widget child;
@@ -16,11 +17,12 @@ class GradientBackground extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isAppBar
-              ? [softBlue, darkBlue]
-              : [Colors.white, softBlue.withOpacity(0.1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            primary,
+            ColorUtils.getTransparentColor(primary, 0.8),
+          ],
         ),
       ),
       child: child,

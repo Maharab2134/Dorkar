@@ -54,7 +54,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: error),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -87,4 +88,4 @@ class AppTheme {
       ),
     );
   }
-} 
+}
