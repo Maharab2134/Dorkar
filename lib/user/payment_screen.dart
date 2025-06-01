@@ -73,7 +73,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
 
     try {
-      String url = 'http://$ip/dorkar/payment.php';
+    String url = 'http://$ip/dorkar/payment.php';
 
       var response = await http.post(
         Uri.parse(url),
@@ -130,7 +130,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           
           if (mounted) {
             Navigator.pop(context); // Close loading dialog
-            ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Payment Successful'),
                 backgroundColor: Colors.green,
@@ -290,8 +290,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
-                  child: Form(
-                    key: _formKey,
+        child: Form(
+          key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -310,20 +310,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
                                   'Amount',
-                                  style: TextStyle(
+                style: TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                                     color: vanilla,
-                                  ),
-                                ),
+                ),
+              ),
                                 const SizedBox(height: 8),
-                                TextFormField(
-                                  controller: agreedAmount,
+              TextFormField(
+                controller: agreedAmount,
                                   style: const TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     hintText: 'Enter amount',
@@ -344,13 +344,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       borderSide: const BorderSide(color: vanilla),
                                     ),
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
+                keyboardType: TextInputType.number,
+                validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter the amount';
-                                    }
-                                    return null;
-                                  },
+                  }
+                  return null;
+                },
                                 ),
                               ],
                             ),
@@ -364,8 +364,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             fontWeight: FontWeight.bold,
                             color: vanilla,
                           ),
-                        ),
-                        const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -381,10 +381,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             final isSelected = selectedPaymentMethod == method['name'];
                             return InkWell(
                               onTap: () {
-                                setState(() {
+                  setState(() {
                                   selectedPaymentMethod = method['name'];
-                                });
-                              },
+                  });
+                },
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: isSelected ? method['color'].withOpacity(0.2) : darkBlue,
@@ -413,17 +413,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 ),
                               ),
                             );
-                          },
-                        ),
+                },
+              ),
                         const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                             onPressed: isProcessing
                                 ? null
                                 : () {
                                     if (_formKey.currentState!.validate() && selectedPaymentMethod != null) {
-                                      paymentDetails(widget.bookingID);
+                      paymentDetails(widget.bookingID);
                                     } else if (selectedPaymentMethod == null) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
@@ -431,8 +431,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                           backgroundColor: Colors.red,
                                         ),
                                       );
-                                    }
-                                  },
+                    }
+                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: vanilla,
                               padding: const EdgeInsets.symmetric(vertical: 16),
